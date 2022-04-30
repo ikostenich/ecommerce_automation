@@ -1,7 +1,7 @@
 export PATH="$HOME/chromedriver/stable:$PATH"
 
-export BROWSER=headlesschrome
+export BROWSER=chrome
 
-export ENV=test
+export ENV=prod
 
 export PYTHONPATH=$PYTHONPATH:$PWD
