@@ -13,7 +13,7 @@ class SearchBar(HomePage):
         self.__switch_to_iframe()
 
     def __switch_to_iframe(self):
-        self.driver.switch_to.frame(self.iframe)        
+        self.driver.switch_to.frame(self.iframe.element)        
     
     @property
     def search_input(self):

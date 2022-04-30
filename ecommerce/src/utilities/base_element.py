@@ -35,9 +35,12 @@ class BaseElement:
     def attribute(self, attr_name):
         attribute = self.web_element.get_attribute(attr_name)
         return attribute
-
     
     @property
     def text(self):
         text = self.web_element.text
         return text
+    
+    @property
+    def element(self):
+        return self.web_element

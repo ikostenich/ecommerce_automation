@@ -16,7 +16,8 @@ class BasePage:
     @property
     def iframe(self):
         IFRAME_LOCATOR = (By.XPATH, "//iframe[@src]")
-        iframe = BaseElement(
+
+        return BaseElement(
             self.driver,
             locator=IFRAME_LOCATOR
             )
