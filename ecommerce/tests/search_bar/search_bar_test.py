@@ -1,6 +1,8 @@
 import pytest
 
-from ecommerce.src.pages.base_page import BasePage
+from ecommerce.src.pages.home_page import BasePage, HomePage
+from ecommerce.src.pages.search_bar import SearchBar
+import time
 
 
 pytestmark = [pytest.mark.smoke]
@@ -13,14 +15,17 @@ class TestSearchBar:
     def test_search_full_product_name(self):
         
         product_name = 'Apple iCam'
+        welcome_text = 'Welcome to our store'
 
-        base_website = BasePage(self.driver)
-        search_bar = base_website.search_bar
+        home_page = HomePage(self.driver)
+        # search_bar = base_website.search_bar
 
-        base_website.open_website()
+        home_page.open_page()
 
-        search_bar.enter_search_text(product_name)
+        search_bar = SearchBar(self.driver)
+        search_bar.search_input.input_text(product_name)
 
         search_bar.click_search_button()
 
+        
 

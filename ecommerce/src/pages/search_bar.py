@@ -1,17 +1,40 @@
+from ecommerce.src.pages.home_page import HomePage
+from selenium.webdriver.common.by import By
+
+from ecommerce.src.utilities.base_element import BaseElement
 from ecommerce.src.selenium_utils import SeleniumUtils
 
-from ecommerce.src.pages.locators.search_bar_locators import SearchBarLocators
 
-
-class SearchBar(SearchBarLocators):
-
+class SearchBar(HomePage):
+  
     def __init__(self, driver):
         self.driver = driver
         self.se = SeleniumUtils(self.driver)
-    
-    def click_search_button(self):
-        self.se.wait_and_click_element(self.SEARCH_BUTTON)
-    
-    def enter_search_text(self, text):
-        self.se.wait_and_input_text(self.SEARCH_FIELD, text)
+        self.__switch_to_iframe()
 
+    def __switch_to_iframe(self):
+        self.driver.switch_to.frame(self.iframe)        
+    
+    @property
+    def search_input(self):
+        SEARCH_FIELD_LOCATOR = (By.ID, 'small-searchterms')
+
+        return BaseElement(
+            self.driver,
+            locator=SEARCH_FIELD_LOCATOR
+            )
+
+    @property
+    def search_button(self):
+        SEARCH_BUTTON_LOCATOR = (By.XPATH, "//button[contains(@class,'search-box-button')]")
+
+        return BaseElement(
+            self.driver,
+            locator=SEARCH_BUTTON_LOCATOR
+            )
+
+    def type_into_search_field(self, text):
+        self.search_input.input_text(text)
+
+    def click_search_button(self):
+        self.search_button.click()

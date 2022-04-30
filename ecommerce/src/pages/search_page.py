@@ -1,4 +1,5 @@
+from ecommerce.src.pages.home_page import HomePage
 
 
-# class SearchPage(BasePage):
-#     pass
+class SearchPage(HomePage):
+    pass

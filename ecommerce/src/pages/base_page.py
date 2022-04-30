@@ -1,15 +1,22 @@
-from ecommerce.src.helpers.config_helpers import get_base_url
-from ecommerce.src.selenium_utils import SeleniumUtils
-from ecommerce.src.pages.search_bar import SearchBar
+from selenium.webdriver.common.by import By
+
+from ecommerce.src.utilities.base_element import BaseElement
 
 
 class BasePage:
 
+    url = None
+
     def __init__(self, driver):
         self.driver = driver
-        self.se = SeleniumUtils(self.driver)
-        self.search_bar = SearchBar(self.driver)
+
+    def open_page(self):
+        self.driver.get(self.url)
     
-    def open_website(self):
-        home_url = get_base_url()
-        self.driver.get(home_url)
+    @property
+    def iframe(self):
+        IFRAME_LOCATOR = (By.XPATH, "//iframe[@src]")
+        iframe = BaseElement(
+            self.driver,
+            locator=IFRAME_LOCATOR
+            )
