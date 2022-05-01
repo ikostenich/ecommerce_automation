@@ -6,6 +6,7 @@ from ecommerce.src.services.search_bar_service import SearchBarService
 @pytest.mark.usefixtures('driver')
 class TestSearchBar:
 
+
     @pytest.fixture(scope='class')
     def search_bar_service(self):
 
@@ -20,7 +21,7 @@ class TestSearchBar:
     @pytest.mark.tc11
     @pytest.mark.tc12
     @pytest.mark.parametrize('search_data', product_name_search_data)
-    def test_search_by_full_name(self, search_bar_service, search_data):
+    def test_search_via_search_bar(self, search_bar_service, search_data):
 
         product_title = 'Apple iCam'
 

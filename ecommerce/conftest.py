@@ -33,5 +33,21 @@ def driver(request):
     home_page.open_home_page()
 
     yield request.cls.driver
-    
+
     driver.quit()
+
+
+@pytest.fixture(scope='class')
+def search_page_service(driver):
+
+    search_page_service = SearchPageService(driver)
+
+    yield search_page_service
+
+
+@pytest.fixture(scope='function')
+def open_search_page(search_page_service):
+
+    search_page_service.page.open_search_page()
+
+    yield
