@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 from ecommerce.src.utilities.elements.base_element import BaseElement
 from ecommerce.src.utilities.elements.dropdown_element import DropdownElement
@@ -14,7 +15,7 @@ class SearchPage(HomePage):
   
     def __init__(self, driver):
         self.driver = driver 
-        self._products = None
+        self._products = []
     
     @property
     def page_title(self):
@@ -65,9 +66,13 @@ class SearchPage(HomePage):
     @property
     def product_boxes(self, timeout=2):
         PRODUCT_BOX_LOCATOR = (By.XPATH, "//div[@class='item-box']")
-        products = WebDriverWait(
-            self.driver, timeout
-            ).until(EC.visibility_of_all_elements_located(PRODUCT_BOX_LOCATOR))
+        try:
+            products = WebDriverWait(
+                self.driver, timeout
+                ).until(EC.visibility_of_all_elements_located(PRODUCT_BOX_LOCATOR))
+        except TimeoutException:
+            products = []
+
         return products
 
     @property
