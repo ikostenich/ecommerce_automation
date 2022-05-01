@@ -2,16 +2,13 @@ from re import sub
 from decimal import Decimal
 import random
 
+from selenium.common.exceptions import TimeoutException
+
 from ecommerce.src.objects.product import Product
 from ecommerce.src.objects.pager import Pager
 from ecommerce.src.pages.search_page import SearchPage
-
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 from ecommerce.src.pages.product_page import ProductPage
 
-import time
 
 class SearchPageService:
 
@@ -34,7 +31,12 @@ class SearchPageService:
 
     @staticmethod
     def get_product_names(products):
-        product_names = [i.product_title.text for i in products]
+        
+        if products:
+            product_names = [i.product_title.text for i in products]
+        else:
+            return []
+
         return product_names
     
 
@@ -103,7 +105,11 @@ class SearchPageService:
         products = []
         self.search_page.products = []
 
-        self.select_display_number(self.search_page.display_dropdown.get_values()[-1])
+        try:
+            self.select_display_number(self.search_page.display_dropdown.get_values()[-1])
+        except TimeoutException:
+            return
+
 
         products_elements = self.search_page.product_boxes
         for product_element in products_elements:
