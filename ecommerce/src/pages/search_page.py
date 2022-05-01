@@ -132,3 +132,8 @@ class SearchPage(HomePage):
             self.driver, 2
             ).until(EC.invisibility_of_element_located(LOADING_SPINNER_LOCATOR))
     
+    def open_search_page(self):
+        self.open_page()
+
+    def get_page_title(self):
+        return self.page_title.text

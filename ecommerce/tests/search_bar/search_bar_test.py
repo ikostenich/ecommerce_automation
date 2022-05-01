@@ -1,28 +1,27 @@
 import pytest
 
-from ecommerce.src.pages.home_page import BasePage, HomePage
-from ecommerce.src.pages.search_bar import SearchBar
-import time
+from ecommerce.src.services.search_bar_service import SearchBarService  
 
 
-pytestmark = [pytest.mark.smoke]
+@pytest.mark.usefixtures('driver')
+class TestSearchBar:
+
+    @pytest.fixture(scope='class')
+    def search_bar_service(self):
+
+        search_bar_service = SearchBarService(self.driver)
+
+        yield search_bar_service
 
 
-# @pytest.mark.usefixtures('init_driver')
-# class TestSearchBar:
-    
-#     @pytest.mark.tc10
-#     def test_search_full_product_name(self):
-        
-#         product_name = 'Apple iCam'
+    product_name_search_data = ['Apple iCam', 'Apple', 'App']
 
-#         home_page = HomePage(self.driver)
-#         home_page.open_page()
+    @pytest.mark.tc10
+    @pytest.mark.tc11
+    @pytest.mark.tc12
+    @pytest.mark.parametrize('search_data', product_name_search_data)
+    def test_search_by_full_name(self, search_bar_service, search_data):
 
-#         search_bar = SearchBar(self.driver)
-#         search_bar.search_input.input_text(product_name)
+        product_title = 'Apple iCam'
 
-#         search_bar.click_search_button()
-
-        
-
+        search_bar_service.search(search_data, expected_product_name=product_title)

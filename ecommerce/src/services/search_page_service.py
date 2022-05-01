@@ -31,7 +31,7 @@ class SearchPageService:
 
     @staticmethod
     def get_product_names(products):
-        
+
         if products:
             product_names = [i.product_title.text for i in products]
         else:
@@ -52,11 +52,7 @@ class SearchPageService:
         product_prices = [convert_to_decimal(i) for i in products]
 
         return product_prices
-
-
-    def open_search_page(self):
-        self.search_page.open_page()
-    
+  
 
     def get_search_page_title(self):
         return self.search_page.page_title.text

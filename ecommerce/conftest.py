@@ -2,7 +2,8 @@ import os
 
 import pytest
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options 
+from selenium.webdriver.chrome.options import Options
+from ecommerce.src.pages.home_page import HomePage 
 from ecommerce.src.services.search_page_service import SearchPageService   
 
 @pytest.fixture(scope='class')
@@ -27,6 +28,10 @@ def driver(request):
     
     request.cls.driver = driver
 
-    yield
 
-    # driver.quit()
+    home_page = HomePage(request.cls.driver)
+    home_page.open_home_page()
+
+    yield request.cls.driver
+    
+    driver.quit()

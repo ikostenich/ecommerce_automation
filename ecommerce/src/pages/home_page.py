@@ -4,5 +4,9 @@ from ecommerce.src.pages.base_page import BasePage
 
 class HomePage(BasePage):
 
-    url = get_base_url()    
+    url = get_base_url()
+
+    def open_home_page(self):
+        self.driver.get(self.url)
+
 

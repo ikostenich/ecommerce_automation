@@ -1,26 +1,35 @@
 import pytest
-from ecommerce.src.pages.search_page import SearchPage
 from ecommerce.src.services.search_page_service import SearchPageService    
 
 
+@pytest.fixture(scope='class')
+def search_page_service(driver):
+
+    search_page_service = SearchPageService(driver)
+
+    yield search_page_service
+
+
+@pytest.fixture(scope='function')
+def open_search_page(search_page_service):
+
+    search_page_service.page.open_search_page()
+
+    yield
+
+
 @pytest.mark.usefixtures('driver')
+@pytest.mark.usefixtures('search_page_service')
+@pytest.mark.usefixtures('open_search_page')
 class TestSearchPage:
 
-    @pytest.fixture(scope='class')
-    def search_page_service(self):
-
-        search_page_service = SearchPageService(self.driver)
-
-        yield search_page_service
-
-
+  
     @pytest.mark.tc14
-    def test_verify_search_page_title(self, search_page_service):
-     
-        search_page_service.open_search_page()    
-        
+    @pytest.mark.usefixtures('open_search_page')
+    def test_verify_search_page_title(self, search_page_service):     
+       
         page_title = 'Search'
-        assert search_page_service.get_search_page_title() == page_title, f'{page_title} page title is invalid. Expected: {page_title}. Actual: {search_page_service.get_search_page_title()}'
+        assert search_page_service.page.get_page_title() == page_title, f'{page_title} page title is invalid. Expected: {page_title}. Actual: {search_page_service.get_search_page_title()}'
 
     
     product_name_search_data = ['Apple iCam', 'Apple', 'App']
@@ -33,10 +42,7 @@ class TestSearchPage:
 
         product_title = 'Apple iCam'
 
-        search_page_service.open_search_page()
-
         search_page_service.basic_search(search_data, expected_product_name=product_title)
-
 
 
     @pytest.mark.tc32
@@ -46,7 +52,6 @@ class TestSearchPage:
     @pytest.mark.tc36
     def test_advanced_search_checkbox(self, search_page_service):
 
-        search_page_service.open_search_page()
         assert not search_page_service.is_advanced_search_selected(), 'Advanced search checkbox is enabled by default'
 
         search_page_service.check_advanced_search()
@@ -59,7 +64,6 @@ class TestSearchPage:
     @pytest.mark.tc48
     def test_verify_categories_sorting(self, search_page_service):
      
-        search_page_service.open_search_page()
         search_page_service.check_advanced_search()      
         values = search_page_service.page.category_dropdown.get_values()
         sorted_values = sorted(values)
@@ -72,7 +76,6 @@ class TestSearchPage:
 
         product_title = 'Apple iCam'
 
-        search_page_service.open_search_page()
         search_page_service.advanced_search(search_data, expected_product_name=product_title)    
 
 
@@ -86,7 +89,6 @@ class TestSearchPage:
             'category': 'Computers >> Notebooks',
         }
 
-        search_page_service.open_search_page()
         search_page_service.advanced_search(search_keyword, expected_product_name=product_title, **search_params) 
 
 
@@ -100,7 +102,6 @@ class TestSearchPage:
             'category': 'Computers >> Notebooks',
         }
 
-        search_page_service.open_search_page()
         products = search_page_service.advanced_search(search_keyword, **search_params)
         product_names = SearchPageService.get_product_names(products)
         
@@ -118,7 +119,6 @@ class TestSearchPage:
             'search_subcategories': True
         }
 
-        search_page_service.open_search_page()
         search_page_service.advanced_search(search_keyword, expected_product_name=product_title, **search_params) 
 
 
@@ -133,7 +133,6 @@ class TestSearchPage:
             'search_subcategories': True
         }
 
-        search_page_service.open_search_page()
         products = search_page_service.advanced_search(search_keyword, **search_params)
         product_names = SearchPageService.get_product_names(products)
         
@@ -150,7 +149,6 @@ class TestSearchPage:
             'manufacturer': 'Apple',
         }
 
-        search_page_service.open_search_page()
         search_page_service.advanced_search(search_keyword, expected_product_name=product_title, **search_params) 
 
     @pytest.mark.tc66
@@ -163,7 +161,6 @@ class TestSearchPage:
             'manufacturer': 'Apple',
         }
 
-        search_page_service.open_search_page()
         products = search_page_service.advanced_search(search_keyword, **search_params)
         product_names = SearchPageService.get_product_names(products)
         
@@ -180,7 +177,6 @@ class TestSearchPage:
             'search_in_description': False,
         }
 
-        search_page_service.open_search_page()
         products = search_page_service.advanced_search(search_phrase, **search_params)
         product_names = SearchPageService.get_product_names(products)
 
@@ -200,7 +196,6 @@ class TestSearchPage:
             'search_in_description': True,
         }
 
-        search_page_service.open_search_page()
         search_page_service.advanced_search(search_data, expected_product_name=product_title, **search_params)
 
 
@@ -216,7 +211,6 @@ class TestSearchPage:
             'search_in_description': True,
         }
 
-        search_page_service.open_search_page()
         search_page_service.advanced_search(search_data, **search_params)
         product_names = search_page_service.sort_name()
         product_names_sorted = sorted(product_names)
@@ -239,7 +233,6 @@ class TestSearchPage:
         
         search_data = 'book'
 
-        search_page_service.open_search_page()
         search_page_service.basic_search(search_data)
         search_page_service.add_random_product_to_cart()
 
@@ -248,7 +241,6 @@ class TestSearchPage:
         
         search_data = 'book'
 
-        search_page_service.open_search_page()
         search_page_service.basic_search(search_data)
         search_page_service.add_random_product_to_comparison()
     
@@ -257,7 +249,6 @@ class TestSearchPage:
         
         search_data = 'book'
 
-        search_page_service.open_search_page()
         search_page_service.basic_search(search_data)
         search_page_service.add_random_product_to_wishlist()
 
@@ -266,7 +257,6 @@ class TestSearchPage:
         
         search_data = 'book'
 
-        search_page_service.open_search_page()
         search_page_service.basic_search(search_data)
         search_page_service.open_random_product()
         
