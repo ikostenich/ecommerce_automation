@@ -2,11 +2,11 @@ import os
 
 import pytest
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-
+from selenium.webdriver.chrome.options import Options 
+from ecommerce.src.services.search_page_service import SearchPageService   
 
 @pytest.fixture(scope='class')
-def init_driver(request):
+def driver(request):
 
     browsers = ['chrome', 'headlesschrome']
 
@@ -30,4 +30,3 @@ def init_driver(request):
     yield
 
     # driver.quit()
-

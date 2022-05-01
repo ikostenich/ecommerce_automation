@@ -2,14 +2,12 @@ from ecommerce.src.pages.home_page import HomePage
 from selenium.webdriver.common.by import By
 
 from ecommerce.src.utilities.base_element import BaseElement
-from ecommerce.src.selenium_utils import SeleniumUtils
 
 
 class SearchBar(HomePage):
   
     def __init__(self, driver):
         self.driver = driver
-        self.se = SeleniumUtils(self.driver)
         self.__switch_to_iframe()
 
     def __switch_to_iframe(self):
@@ -33,8 +31,3 @@ class SearchBar(HomePage):
             locator=SEARCH_BUTTON_LOCATOR
             )
 
-    def type_into_search_field(self, text):
-        self.search_input.input_text(text)
-
-    def click_search_button(self):
-        self.search_button.click()

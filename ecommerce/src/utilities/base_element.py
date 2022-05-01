@@ -37,6 +37,10 @@ class BaseElement:
         return attribute
     
     @property
+    def is_displayed(self):        
+        return self.web_element.is_displayed()
+    
+    @property
     def text(self):
         text = self.web_element.text
         return text
