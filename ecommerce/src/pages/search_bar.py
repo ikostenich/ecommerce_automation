@@ -1,7 +1,7 @@
 from ecommerce.src.pages.home_page import HomePage
 from selenium.webdriver.common.by import By
 
-from ecommerce.src.utilities.base_element import BaseElement
+from ecommerce.src.utilities.elements.base_element import BaseElement
 
 
 class SearchBar(HomePage):

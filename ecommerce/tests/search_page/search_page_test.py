@@ -14,76 +14,109 @@ class TestSearchPage:
         yield search_page_service
 
 
-    # @pytest.mark.tc14
-    # def test_verify_search_page_title(self, search_page_service):
+    @pytest.mark.tc14
+    def test_verify_search_page_title(self, search_page_service):
      
-    #     search_page_service.open_search_page()    
+        search_page_service.open_search_page()    
         
-    #     page_title = 'Search'
-    #     assert search_page_service.get_search_page_title() == page_title, f'{page_title} page title is invalid. Expected: {page_title}. Actual: {search_page_service.get_search_page_title()}'
+        page_title = 'Search'
+        assert search_page_service.get_search_page_title() == page_title, f'{page_title} page title is invalid. Expected: {page_title}. Actual: {search_page_service.get_search_page_title()}'
 
     
     product_name_search_data = ['Apple iCam', 'Apple', 'App']
 
-    # @pytest.mark.tc25
-    # @pytest.mark.tc26
-    # @pytest.mark.tc27
-    # @pytest.mark.parametrize('search_data', product_name_search_data)
-    # def test_search_by_full_name(self, search_page_service, search_data):
-
-    #     product_title = 'Apple iCam'
-
-    #     search_page_service.open_search_page()
-
-    #     product_names = search_page_service.basic_search(search_data)
-
-    #     assert product_title in product_names, f'Product {product_title} not found in search results.' \
-    #                                             f'Search results: {product_names}'
-
-
-    # @pytest.mark.tc32
-    # @pytest.mark.tc33
-    # @pytest.mark.tc34
-    # @pytest.mark.tc35
-    # @pytest.mark.tc36
-    # def test_advanced_search_checkbox(self, search_page_service):
-
-    #     search_page_service.open_search_page()
-    #     assert not search_page_service.is_advanced_search_selected(), 'Advanced search checkbox is enabled by default'
-
-    #     search_page_service.page.advanced_search_checkbox.click()
-    #     assert search_page_service.is_category_dropdown_visible(), 'Category dropdown is not visible with "advances search" checkbox enabled'
-    #     assert search_page_service.is_search_subcategories_checkbox_visible(), 'Search subcategories checkbox is not visible with "advances search" checkbox enabled'
-    #     assert search_page_service.is_manufacturer_dropdown_visible(), 'Manufacturer dropdown is not visible with "advances search" checkbox enabled'
-    #     assert search_page_service.is_search_in_description_dropdown_visible(), 'Search in product description checkbox is not visible with "advances search" checkbox enabled'
-       
-    @pytest.mark.tc49
+    @pytest.mark.tc25
+    @pytest.mark.tc26
+    @pytest.mark.tc27
     @pytest.mark.parametrize('search_data', product_name_search_data)
-    def test_search_by_product_name(self, search_page_service, search_data):
+    def test_search_by_full_name(self, search_page_service, search_data):
 
         product_title = 'Apple iCam'
 
         search_page_service.open_search_page()
-        search_page_service.page.advanced_search_checkbox.click()
 
-        product_names = search_page_service.basic_search(search_data)
+        search_page_service.basic_search(search_data, expected_product_name=product_title)
 
-        assert product_title in product_names, f'Product {product_title} not found in search results.' \
-                                                f'Search results: {product_names}'
+
+
+    @pytest.mark.tc32
+    @pytest.mark.tc33
+    @pytest.mark.tc34
+    @pytest.mark.tc35
+    @pytest.mark.tc36
+    def test_advanced_search_checkbox(self, search_page_service):
+
+        search_page_service.open_search_page()
+        assert not search_page_service.is_advanced_search_selected(), 'Advanced search checkbox is enabled by default'
+
+        search_page_service.check_advanced_search()
+        assert search_page_service.is_category_dropdown_visible(), 'Category dropdown is not visible with "advances search" checkbox enabled'
+        assert search_page_service.is_search_subcategories_checkbox_visible(), 'Search subcategories checkbox is not visible with "advances search" checkbox enabled'
+        assert search_page_service.is_manufacturer_dropdown_visible(), 'Manufacturer dropdown is not visible with "advances search" checkbox enabled'
+        assert search_page_service.is_search_in_description_dropdown_visible(), 'Search in product description checkbox is not visible with "advances search" checkbox enabled'
+
+
+    @pytest.mark.tc48
+    def test_verify_categories_sorting(self, search_page_service):
+     
+        search_page_service.open_search_page()
+        search_page_service.check_advanced_search()      
+        values = search_page_service.page.category_dropdown.get_values()
+        sorted_values = sorted(values)
+
+        assert values == sorted_values, f'Categories are not sorted in ascehding ofder by name'
+
+    @pytest.mark.tc49
+    @pytest.mark.parametrize('search_data', product_name_search_data)
+    def test_advanced_search_by_product_name(self, search_page_service, search_data):
+
+        product_title = 'Apple iCam'
+
+        search_page_service.open_search_page()
+        search_page_service.advanced_search(search_data, expected_product_name=product_title)    
+
+
+    @pytest.mark.tc52
+    def test_verify_search_by_subcategory(self, search_page_service):
         
-        products = search_page_service.get_products()
+        search_keyword = 'Apple'
+        product_title = 'Apple MacBook Pro 13-inch'
+
+        search_params = {
+            'category': 'Computers >> Notebooks',
+        }
+
+        search_page_service.open_search_page()
+        search_page_service.advanced_search(search_keyword, expected_product_name=product_title, **search_params) 
 
 
-    # @pytest.mark.tc49
-    # @pytest.mark.parametrize('search_data', product_name_search_data)
-    # def test_search_by_full_name(self, search_page_service, search_data):
+    @pytest.mark.tc52
+    def test_verify_search_by_subcategory_other_subcategories_not_displayed(self, search_page_service):
+        
+        search_keyword = 'Apple'
+        not_displayed_title = 'Apple iCam'
 
-    #     product_title = 'Apple iCam'
+        search_params = {
+            'category': 'Computers >> Notebooks',
+        }
 
-    #     search_page_service.open_search_page()
-    #     search_page_service.page.advanced_search_checkbox.click()
+        search_page_service.open_search_page()
+        products = search_page_service.advanced_search(search_keyword, **search_params)
+        product_names = SearchPageService.get_product_names(products)
+        
+        assert not not_displayed_title in product_names, f'{not_displayed_title} is at the results list.' \
+                                                        f'Only items of {search_params["category"]} should be returned'
 
-    #     product_names = search_page_service.basic_search(search_data)
+    @pytest.mark.tc58
+    def test_verify_search_in_subcategories(self, search_page_service):
+        
+        search_keyword = 'Apple'
+        product_title = 'Apple MacBook Pro 13-inch'
 
-    #     assert product_title in product_names, f'Product {product_title} not found in search results.' \
-    #                                             f'Search results: {product_names}'
+        search_params = {
+            'category': 'Computers',
+            'search_subcategories': True
+        }
+
+        search_page_service.open_search_page()
+        search_page_service.advanced_search(search_keyword, expected_product_name=product_title, **search_params) 

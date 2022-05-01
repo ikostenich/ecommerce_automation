@@ -8,7 +8,7 @@ class BaseElement:
         self.driver = driver
         self.locator = locator
         self.default_timeout = default_timeout
-        self.web_element = None
+        self._web_element = None
         self.find()
 
     def __get_timeout(self, timeout):
@@ -20,7 +20,7 @@ class BaseElement:
         element = WebDriverWait(
             self.driver, self.__get_timeout(timeout)
             ).until(EC.visibility_of_element_located(self.locator))
-        self.web_element = element
+        self._web_element = element
 
     def click(self, timeout=None):
         element = WebDriverWait(
@@ -29,22 +29,26 @@ class BaseElement:
         element.click()
     
     def input_text(self, text):
-        self.web_element.send_keys(text)
+        self._web_element.send_keys(text)
         return None
 
     def attribute(self, attr_name):
-        attribute = self.web_element.get_attribute(attr_name)
+        attribute = self._web_element.get_attribute(attr_name)
         return attribute
+    
+    def set_default(self):
+        self._web_element.clear()
     
     @property
     def is_displayed(self):        
-        return self.web_element.is_displayed()
+        return self._web_element.is_displayed()
     
     @property
     def text(self):
-        text = self.web_element.text
+        text = self._web_element.text
         return text
     
     @property
     def element(self):
-        return self.web_element
+        return self._web_element
+        
