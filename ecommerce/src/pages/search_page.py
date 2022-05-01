@@ -62,6 +62,15 @@ class SearchPage(HomePage):
         NO_RESULT_MESSAGE_LOCATOR = (By.CLASS_NAME, "no-result")
         return BaseElement(self.driver, locator=NO_RESULT_MESSAGE_LOCATOR)
 
+    @property
+    def sort_by_dropdown(self):
+        SORT_BY_DROPDOWN = (By.ID, "products-orderby")
+        return DropdownElement(self.driver, locator=SORT_BY_DROPDOWN)
+
+    @property
+    def display_dropdown(self):
+        DISPLAY_DROPDOWN = (By.ID, "products-pagesize")
+        return DropdownElement(self.driver, locator=DISPLAY_DROPDOWN)
 
     @property
     def product_boxes(self, timeout=2):
@@ -82,3 +91,44 @@ class SearchPage(HomePage):
     @products.setter
     def products(self, value):
         self._products = value
+    
+    @property
+    def pager(self, timeout=2):
+        PAGER_LOCATOR = (By.XPATH, "//div[@class='pager']")
+        try:
+            pager_element = WebDriverWait(
+                self.driver, timeout
+                ).until(EC.visibility_of_element_located(PAGER_LOCATOR))
+        except TimeoutException:
+            pager_element = None
+
+        return pager_element
+    
+
+    @property
+    def bar_notification_success(self, timeout=2):
+        BAR_NOTIFICATION_SUCCESS_LOCATOR = (By.XPATH, "//div[contains(@class, 'bar-notification success')]")
+
+        try:
+            success_notification = WebDriverWait(
+                self.driver, timeout
+                ).until(EC.visibility_of_element_located(BAR_NOTIFICATION_SUCCESS_LOCATOR))
+        except TimeoutException:
+            success_notification = None
+
+        return success_notification
+    
+    @property
+    def bar_notification_close(self):
+        BAR_NOTIFICATION_CLOSE_LOCATOR = (By.XPATH, "//div[contains(@class, 'bar-notification success')]//span[@class='close']")
+        return BaseElement(self.driver, locator=BAR_NOTIFICATION_CLOSE_LOCATOR)
+
+
+
+    def wait_for_products_update(self):
+        LOADING_SPINNER_LOCATOR = (By.XPATH, '//div[@class="ajax-products-busy"]')
+
+        WebDriverWait(
+            self.driver, 2
+            ).until(EC.invisibility_of_element_located(LOADING_SPINNER_LOCATOR))
+    

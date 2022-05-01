@@ -1,61 +1,133 @@
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from ecommerce.src.objects.product import Product
+from re import sub
+from decimal import Decimal
+import random
 
+from ecommerce.src.objects.product import Product
+from ecommerce.src.objects.pager import Pager
 from ecommerce.src.pages.search_page import SearchPage
 
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+from ecommerce.src.pages.product_page import ProductPage
+
+import time
 
 class SearchPageService:
+
 
     def __init__(self, driver):
         self.driver = driver
         self.search_page = SearchPage(self.driver)
+        self._pager = None
     
+
     @property
     def page(self):
         return self.search_page
+    
 
-    def open_search_page(self):
-        self.search_page.open_page()
+    @property
+    def pager(self):
+        return self._pager
     
-    def get_search_page_title(self):
-        return self.search_page.page_title.text
-    
-    def is_advanced_search_selected(self):
-        advanced_search_checkbox = self.search_page.advanced_search_checkbox
-        is_selected = advanced_search_checkbox.element.is_selected()
-        return is_selected
 
-    def is_category_dropdown_visible(self):
-        return self.search_page.category_dropdown.is_displayed
-    
-    def is_search_subcategories_checkbox_visible(self):
-        return self.search_page.search_subcategories_checkbox.is_displayed
-
-    def is_manufacturer_dropdown_visible(self):
-        return self.search_page.manufacturer_dropdown.is_displayed
-    
-    def is_search_in_description_dropdown_visible(self):
-        return self.search_page.search_in_description_checkbox.is_displayed
-    
-    def check_advanced_search(self):
-        self.search_page.advanced_search_checkbox.click()
-
-    def get_products(self):
-        products = []
-        products_elements = self.search_page.product_boxes
-        for product_element in products_elements:
-            product = Product(product_element)
-            products.append(product)
-        
-        self.search_page.products = products
-        return products
-    
     @staticmethod
     def get_product_names(products):
         product_names = [i.product_title.text for i in products]
         return product_names
     
+
+    @staticmethod
+    def get_product_prices(products):
+
+        def convert_to_decimal(product):
+            if product.product_price:
+                return Decimal(sub(r'[^\d.]', '', product.product_price.text.split(maxsplit=1)[0]))
+            else:
+                return Decimal(0)
+            
+        product_prices = [convert_to_decimal(i) for i in products]
+
+        return product_prices
+
+
+    def open_search_page(self):
+        self.search_page.open_page()
+    
+
+    def get_search_page_title(self):
+        return self.search_page.page_title.text
+    
+
+    def is_advanced_search_selected(self):
+        advanced_search_checkbox = self.search_page.advanced_search_checkbox
+        is_selected = advanced_search_checkbox.element.is_selected()
+        return is_selected
+
+
+    def is_category_dropdown_visible(self):
+        return self.search_page.category_dropdown.is_displayed
+    
+
+    def is_search_subcategories_checkbox_visible(self):
+        return self.search_page.search_subcategories_checkbox.is_displayed
+
+
+    def is_manufacturer_dropdown_visible(self):
+        return self.search_page.manufacturer_dropdown.is_displayed
+    
+
+    def is_search_in_description_dropdown_visible(self):
+        return self.search_page.search_in_description_checkbox.is_displayed
+    
+
+    def check_advanced_search(self):
+        self.search_page.advanced_search_checkbox.click()
+    
+
+    def select_display_number(self, number):
+        if number in self.search_page.display_dropdown.get_values():
+            self.search_page.display_dropdown.select_value(number)
+            self.search_page.wait_for_products_update()
+    
+   
+    def get_pager(self):
+        pager = self.search_page.pager
+        if pager:
+            self._pager = Pager(pager)
+        return pager
+
+
+    def get_products(self):
+        products = []
+        self.search_page.products = []
+
+        self.select_display_number(self.search_page.display_dropdown.get_values()[-1])
+
+        products_elements = self.search_page.product_boxes
+        for product_element in products_elements:
+            product = Product(product_element)
+            products.append(product)
+
+        # while True:
+        #     products_elements = self.search_page.product_boxes
+            
+        #     for product_element in products_elements:
+        #         product = Product(product_element)
+        #         products.append(product)
+
+        #     if self.get_pager() and self._pager.go_to_next_page():
+        #         # self.search_page.wait_for_products_update()
+        #         time.sleep(2)
+        #         continue
+            
+        #     break
+
+        self.search_page.products = products
+
+        return products
+   
 
     def basic_search(self, text, expected_product_name=None):
         self.search_page.search_keyword_input.set_default()
@@ -107,3 +179,97 @@ class SearchPageService:
         products = self.basic_search(text, expected_product_name)
                                                     
         return products
+    
+
+    def sort_name(self, reversed=False):
+
+        sorting_options = {
+            "name_straight_order": 'Name: A to Z',
+            "name_reversed_order": 'Name: Z to A'
+        }
+
+        if not reversed:
+            self.search_page.sort_by_dropdown.select_value(sorting_options['name_straight_order'])
+        else:
+            self.search_page.sort_by_dropdown.select_value(sorting_options['name_reversed_order'])
+
+        self.search_page.wait_for_products_update()
+
+        products = self.get_products()
+        product_names = SearchPageService.get_product_names(products)
+
+        return product_names
+
+
+    def sort_price(self, reversed=False):
+
+        sorting_options = {
+            "price_straight_order": 'Price: Low to High',
+            "price_reversed_order": 'Price: High to Low'
+        }
+
+        if not reversed:
+            self.search_page.sort_by_dropdown.select_value(sorting_options['price_straight_order'])
+        else:
+            self.search_page.sort_by_dropdown.select_value(sorting_options['price_reversed_order'])
+
+        self.search_page.wait_for_products_update()
+
+        products_objects = self.get_products()
+        products = zip(SearchPageService.get_product_names(products_objects), SearchPageService.get_product_prices(products_objects))
+
+        return list(products)
+        
+
+    def add_random_product_to_cart(self):
+        sucess_message = 'The product has been added to your shopping cart'
+
+        products = self.search_page.products
+        products_list = [product for product in products if product.add_to_cart_button.text == 'ADD TO CART']
+        random_product = random.choice(products_list)
+        random_product.add_to_cart_button.click()
+        success_notification = self.search_page.bar_notification_success
+        assert success_notification, f"Product {random_product.text} wasn't added to cart"
+        assert success_notification.text == sucess_message, f'Message displayed is invalid. Expected: {sucess_message}' \
+                                                            f'Actual: {success_notification.text} '
+        self.search_page.bar_notification_close.click()
+
+
+    def add_random_product_to_comparison(self):
+        sucess_message = 'The product has been added to your product comparison'
+
+        products = self.search_page.products
+        products_list = [product for product in products]
+        random_product = random.choice(products_list)
+        random_product.add_to_compare_button.click()
+        success_notification = self.search_page.bar_notification_success
+        assert success_notification, f"Product {random_product.text} wasn't added to comparison"
+        assert success_notification.text == sucess_message, f'Message displayed is invalid. Expected: {sucess_message}' \
+                                                            f'Actual: {success_notification.text} '
+        self.search_page.bar_notification_close.click()
+
+
+    def add_random_product_to_wishlist(self):
+        sucess_message = 'The product has been added to your wishlist'
+
+        products = self.search_page.products
+        products_list = [product for product in products]
+        random_product = random.choice(products_list)
+        random_product.add_to_wishlist_button.click()
+        success_notification = self.search_page.bar_notification_success
+        assert success_notification, f"Product {random_product.text} wasn't added to wishlist"
+        assert success_notification.text == sucess_message, f'Message displayed is invalid. Expected: {sucess_message}' \
+                                                            f'Actual: {success_notification.text} '
+        self.search_page.bar_notification_close.click()
+
+    def open_random_product(self):
+        products = self.search_page.products
+        products_list = [product for product in products]
+        random_product = random.choice(products_list)
+        random_product_name = random_product.product_title.text
+        random_product.product_title_link.click()
+        product_page = ProductPage(self.driver)
+        assert random_product_name == product_page.page_title.text, f'Name of random product {random_product} doesnt match' \
+                                                                    f'random page title: {product_page.page_title.text}'
+        
+        return product_page
