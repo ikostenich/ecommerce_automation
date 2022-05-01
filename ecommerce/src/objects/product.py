@@ -1,4 +1,3 @@
-from pkgutil import extend_path
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 
@@ -52,4 +51,3 @@ class Product:
     def add_to_wishlist_button(self):
         ADD_TO_WISHLIST_LOCATOR = (By.XPATH, ".//button[contains(@class, 'add-to-wishlist-button')]")
         return BaseElement(self.product_box, locator=ADD_TO_WISHLIST_LOCATOR)
-

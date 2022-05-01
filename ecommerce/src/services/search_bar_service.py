@@ -1,20 +1,10 @@
 from ecommerce.src.pages.search_bar import SearchBar
 
-
-from re import sub
-from decimal import Decimal
-import random
-
-from selenium.common.exceptions import TimeoutException
-
-from ecommerce.src.objects.product import Product
-from ecommerce.src.objects.pager import Pager
-
-from ecommerce.src.pages.product_page import ProductPage
 from ecommerce.src.services.search_page_service import SearchPageService
 
 
 class SearchBarService:
+
 
     def __init__(self, driver):
         self.driver = driver

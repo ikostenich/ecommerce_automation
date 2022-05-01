@@ -30,4 +30,3 @@ class SearchBar(HomePage):
             self.driver,
             locator=SEARCH_BUTTON_LOCATOR
             )
-

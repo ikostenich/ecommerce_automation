@@ -53,42 +53,6 @@ class SearchPageService:
 
         return product_prices
   
-
-    def get_search_page_title(self):
-        return self.search_page.page_title.text
-    
-
-    def is_advanced_search_selected(self):
-        advanced_search_checkbox = self.search_page.advanced_search_checkbox
-        is_selected = advanced_search_checkbox.element.is_selected()
-        return is_selected
-
-
-    def is_category_dropdown_visible(self):
-        return self.search_page.category_dropdown.is_displayed
-    
-
-    def is_search_subcategories_checkbox_visible(self):
-        return self.search_page.search_subcategories_checkbox.is_displayed
-
-
-    def is_manufacturer_dropdown_visible(self):
-        return self.search_page.manufacturer_dropdown.is_displayed
-    
-
-    def is_search_in_description_dropdown_visible(self):
-        return self.search_page.search_in_description_checkbox.is_displayed
-    
-
-    def check_advanced_search(self):
-        self.search_page.advanced_search_checkbox.click()
-    
-
-    def select_display_number(self, number):
-        if number in self.search_page.display_dropdown.get_values():
-            self.search_page.display_dropdown.select_value(number)
-            self.search_page.wait_for_products_update()
-    
    
     def get_pager(self):
         pager = self.search_page.pager
@@ -102,29 +66,14 @@ class SearchPageService:
         self.search_page.products = []
 
         try:
-            self.select_display_number(self.search_page.display_dropdown.get_values()[-1])
+            self.page.select_display_number(self.search_page.display_dropdown.get_values()[-1])
         except TimeoutException:
             return
-
 
         products_elements = self.search_page.product_boxes
         for product_element in products_elements:
             product = Product(product_element)
             products.append(product)
-
-        # while True:
-        #     products_elements = self.search_page.product_boxes
-            
-        #     for product_element in products_elements:
-        #         product = Product(product_element)
-        #         products.append(product)
-
-        #     if self.get_pager() and self._pager.go_to_next_page():
-        #         # self.search_page.wait_for_products_update()
-        #         time.sleep(2)
-        #         continue
-            
-        #     break
 
         self.search_page.products = products
 
@@ -161,8 +110,8 @@ class SearchPageService:
         if 'search_in_description' in kwargs.keys():
             search_in_description = kwargs['search_in_description']
 
-        if not self.is_advanced_search_selected():
-            self.check_advanced_search()
+        if not self.page.is_advanced_search_selected():
+            self.page.check_advanced_search()
         else:
             self.search_page.category_dropdown.set_default()
             self.search_page.manufacturer_dropdown.set_default()
@@ -263,6 +212,7 @@ class SearchPageService:
         assert success_notification.text == sucess_message, f'Message displayed is invalid. Expected: {sucess_message}' \
                                                             f'Actual: {success_notification.text} '
         self.search_page.bar_notification_close.click()
+
 
     def open_random_product(self):
         products = self.search_page.products
