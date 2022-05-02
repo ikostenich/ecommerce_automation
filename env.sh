@@ -1,6 +1,6 @@
 export PATH="$HOME/chromedriver/stable:$PATH"
 
-export BROWSER=chrome
+export BROWSER=headlesschrome
 
 export ENV=prod
 
