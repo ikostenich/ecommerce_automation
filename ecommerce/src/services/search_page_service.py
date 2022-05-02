@@ -61,14 +61,15 @@ class SearchPageService:
         return pager
 
 
-    def get_products(self):
+    def get_products(self, all=True):
         products = []
         self.search_page.products = []
 
-        try:
-            self.page.select_display_number(self.search_page.display_dropdown.get_values()[-1])
-        except TimeoutException:
-            return
+        if all:
+            try:
+                self.page.select_display_number(self.search_page.display_dropdown.get_values()[-1])
+            except TimeoutException:
+                return
 
         products_elements = self.search_page.product_boxes
         for product_element in products_elements:
@@ -225,3 +226,13 @@ class SearchPageService:
                                                                     f'random page title: {product_page.page_title.text}'
         
         return product_page
+
+
+    def select_display_value(self, value):
+        
+        self.search_page.display_dropdown.select_value(str(value))
+        self.search_page.wait_for_products_update()
+
+        products = self.get_products(all=False)
+
+        return products

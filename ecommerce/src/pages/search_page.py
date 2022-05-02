@@ -180,3 +180,6 @@ class SearchPage(HomePage):
         if number in self.display_dropdown.get_values():
             self.display_dropdown.select_value(number)
             self.wait_for_products_update()
+
+    def is_pager_visible(self):
+        return self.pager.is_displayed()

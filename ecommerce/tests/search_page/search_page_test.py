@@ -254,3 +254,34 @@ class TestSearchPage:
         search_page_service.basic_search(search_data)
         search_page_service.open_random_product()
         
+
+    @pytest.mark.tc82
+    def test_no_results(self, search_page_service):
+        
+        search_data = '¯\_(ツ)_/¯'
+        no_products_message = f'No results for {search_data}'
+
+        search_page_service.basic_search(search_data)
+        assert search_page_service.page.no_result_message.text == no_products_message, 'No search results message is invalid.' \
+                                                                                        f'Actual: {search_page_service.page.no_result_message.text}' \
+                                                                                        f'Expected: {no_products_message}'
+
+    @pytest.mark.tc98
+    @pytest.mark.tc127
+    def test_verify_results_displayed_more_display_value(self, search_page_service):
+        
+        search_data = 'cor'
+        display_value = 3
+
+        search_params = {
+            'search_in_description': True,
+        }
+
+        search_page_service.advanced_search(search_data, **search_params)
+
+        products = search_page_service.select_display_value(display_value)
+        
+        assert len(products) <= display_value, f'The number of displayed products is invalid. Expected: less or equal {display_value}' \
+                                                f'Actual: {len(products)}'
+
+        assert search_page_service.page.is_pager_visible(), 'Pager does not appear when total search results more than display value selected'
